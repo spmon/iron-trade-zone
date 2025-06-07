@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TrendingUp, Package, ShoppingCart, DollarSign, ArrowLeft } from 'lucide-react';
+import { TrendingUp, Package, ShoppingCart, DollarSign, ArrowLeft, Users } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Order } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -15,17 +15,35 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { ChartContainer, ChartTooltipContent, ChartTooltip } from '@/components/ui/chart';
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 
 const SellerDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [stats, setStats] = useState({
-    totalRevenue: 0,
-    totalOrders: 0,
-    totalProducts: 12, // Mock data
-    pendingOrders: 0
+    totalRevenue: 7649000,
+    totalOrders: 8,
+    totalProducts: 117,
+    totalUsers: 1
   });
+
+  // Dữ liệu cho biểu đồ doanh thu
+  const revenueData = [
+    { name: 'T5 17', value: 0 },
+    { name: 'T6 1', value: 500000 },
+    { name: 'T7 2', value: 800000 },
+    { name: 'CN 3', value: 1200000 },
+    { name: 'T2 4', value: 7649000 },
+  ];
+
+  // Dữ liệu cho biểu đồ tròn
+  const categoryData = [
+    { name: 'Sản phẩm', value: 117, fill: '#3b82f6' },
+    { name: 'Đơn hàng', value: 8, fill: '#10b981' },
+    { name: 'Người dùng', value: 1, fill: '#f59e0b' },
+  ];
 
   useEffect(() => {
     if (!user || user.role !== 'seller') {
@@ -61,8 +79,8 @@ const SellerDashboard = () => {
     setStats({
       totalRevenue,
       totalOrders: loadedOrders.length,
-      totalProducts: 12,
-      pendingOrders
+      totalProducts: 117,
+      totalUsers: 1
     });
   }, [user, navigate]);
 
@@ -120,19 +138,19 @@ const SellerDashboard = () => {
             </Button>
             <div className="flex items-center">
               <TrendingUp className="w-6 h-6 text-primary mr-2" />
-              <h1 className="text-3xl font-bold">Dashboard Seller</h1>
+              <h1 className="text-3xl font-bold">Dashboard</h1>
             </div>
           </div>
-          <Button onClick={() => navigate('/seller/products')}>
-            Quản lý sản phẩm
-          </Button>
+          <div className="text-sm text-gray-500">
+            7 ngày gần đây
+          </div>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Tổng doanh thu</CardTitle>
+              <CardTitle className="text-sm font-medium">Doanh thu</CardTitle>
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -142,33 +160,97 @@ const SellerDashboard = () => {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Tổng đơn hàng</CardTitle>
-              <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.totalOrders}</div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Tổng sản phẩm</CardTitle>
+              <CardTitle className="text-sm font-medium">Sản phẩm</CardTitle>
               <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.totalProducts}</div>
+              <p className="text-xs text-muted-foreground">Số lượng sản phẩm</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Chờ xác nhận</CardTitle>
+              <CardTitle className="text-sm font-medium">Đơn hàng</CardTitle>
               <ShoppingCart className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.pendingOrders}</div>
+              <div className="text-2xl font-bold">{stats.totalOrders}</div>
+              <p className="text-xs text-muted-foreground">Số lượng đơn hàng</p>
             </CardContent>
           </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Người dùng</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.totalUsers}</div>
+              <p className="text-xs text-muted-foreground">Số người dùng</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Revenue Chart */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Biểu đồ doanh thu</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ChartContainer config={{}}>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={revenueData}>
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={2} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+
+          {/* Category Distribution */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Thống kê tổng quan</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ChartContainer config={{}}>
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={categoryData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={100}
+                      dataKey="value"
+                      label={(entry) => `${entry.name}: ${entry.value}`}
+                    >
+                      {categoryData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                      ))}
+                    </Pie>
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-4 mb-8">
+          <Button onClick={() => navigate('/seller/products')}>
+            Quản lý sản phẩm
+          </Button>
+          <Button variant="outline">
+            Xem báo cáo
+          </Button>
         </div>
 
         {/* Recent Orders */}
