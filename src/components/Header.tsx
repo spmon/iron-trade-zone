@@ -41,7 +41,7 @@ const Header = () => {
             <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
               <span className="text-white font-bold text-lg">G</span>
             </div>
-            <span className="text-xl font-bold text-primary">GymStore</span>
+            <span className="text-xl font-bold text-primary">GymSupp Hero</span>
           </Link>
 
           {/* Search Bar */}
